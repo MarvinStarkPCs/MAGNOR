@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('compras', function (Blueprint $table) {
+        Schema::create('caja_diaria', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('proveedor_id')->nullable()->constrained('proveedores')->nullOnDelete();
-            $table->date('fecha_compra');
-            $table->decimal('total', 12, 2)->default(0);
+            $table->date('fecha')->unique();
+            $table->decimal('monto_inicial', 12, 2)->default(0);
+            $table->decimal('monto_final', 12, 2)->nullable();
             $table->text('observaciones')->nullable();
             $table->timestamps();
         });
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('compras');
+        Schema::dropIfExists('caja_diaria');
     }
 };

@@ -8,9 +8,10 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('ventas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cliente_id')->constrained('clientes')->cascadeOnDelete();
+            $table->foreignId('cliente_id')->nullable()->constrained('clientes')->nullOnDelete();
             $table->date('fecha');
             $table->decimal('total', 12, 2)->default(0);
+            $table->text('observaciones')->nullable();
             $table->timestamps();
         });
     }

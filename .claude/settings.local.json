@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer install:*)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(php artisan:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install)",
+      "Bash(del \"C:\\laragon\\www\\MAGNOR\\resources\\css\\filament.css\")",
+      "Bash(composer require:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

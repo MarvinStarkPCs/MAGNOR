@@ -19,6 +19,9 @@ class Material extends Model
         'unidad_medida',
         'precio_compra',
         'precio_venta',
+        'precio_dia_compra',
+        'precio_dia_venta',
+        'fecha_actualizacion_precio',
         'stock',
     ];
 
@@ -26,7 +29,10 @@ class Material extends Model
     protected $casts = [
         'precio_compra' => 'decimal:2',
         'precio_venta' => 'decimal:2',
+        'precio_dia_compra' => 'decimal:2',
+        'precio_dia_venta' => 'decimal:2',
         'stock' => 'decimal:2',
+        'fecha_actualizacion_precio' => 'date',
     ];
 
     // Relación con compras (si existiera tabla purchases)
