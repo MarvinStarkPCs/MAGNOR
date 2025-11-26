@@ -10,7 +10,11 @@
       "Bash(composer require:*)",
       "Bash(npm install:*)",
       "Bash(find:*)",
-      "Bash(dir \"C:\\laragon\\www\\MAGNOR\\public\" /b)"
+      "Bash(dir \"C:\\laragon\\www\\MAGNOR\\public\" /b)",
+      "Bash(composer remove:*)",
+      "Bash(composer update:*)",
+      "Bash(del \"C:\\laragon\\www\\MAGNOR\\app\\Filament\\Pages\\Inventario.php\")",
+      "Bash(del \"C:\\laragon\\www\\MAGNOR\\resources\\views\\filament\\pages\\inventario.blade.php\")"
     ],
     "deny": [],
     "ask": []

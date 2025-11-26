@@ -60,8 +60,8 @@ class LogHttpResponses
                 'session_data' => session()->all(),
                 'request_headers' => $request->headers->all(),
                 'response_headers' => $response->headers->all(),
-                'permissions' => auth()->check() ? auth()->user()->getAllPermissions()->pluck('name') : [],
-                'roles' => auth()->check() ? auth()->user()->getRoleNames() : [],
+                // 'permissions' => auth()->check() ? auth()->user()->getAllPermissions()->pluck('name') : [],
+                // 'roles' => auth()->check() ? auth()->user()->getRoleNames() : [],
                 'storage_permissions' => [
                     'storage_writable' => is_writable(storage_path()),
                     'storage_sessions_writable' => is_writable(storage_path('framework/sessions')),
