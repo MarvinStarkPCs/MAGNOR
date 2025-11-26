@@ -15,34 +15,44 @@ class UserProfile extends Page implements HasForms
 
     protected static string $view = 'filament.pages.user-profile';
 
-    // 🔹 ocultar en el menú lateral
+    // 🔹 No mostrar en el panel lateral
     protected static bool $shouldRegisterNavigation = false;
 
-    public $name;
-    public $email;
+    // El formulario usará este array automáticamente
+    public ?array $data = [];
 
     public function mount(): void
     {
         $user = Auth::user();
+
         $this->form->fill([
-            'name' => $user->name,
+            'name'  => $user->name,
             'email' => $user->email,
         ]);
     }
 
     public function form(Form $form): Form
     {
-        return $form->schema([
-            TextInput::make('name')->label('Nombre')->required(),
-            TextInput::make('email')->label('Correo')->email()->required(),
-        ])->statePath('data');
+        return $form
+            ->schema([
+                TextInput::make('name')
+                    ->label('Nombre')
+                    ->required(),
+
+                TextInput::make('email')
+                    ->label('Correo electrónico')
+                    ->email()
+                    ->required(),
+            ])
+            ->statePath('data'); // ⚡ Importante: los datos van a $this->data[]
     }
 
     public function save(): void
     {
         $user = Auth::user();
-        $user->update($this->form->getState());
 
-        $this->notify('success', 'Perfil actualizado ✅');
+        $user->update($this->data); // ahora sí funciona perfecto
+
+        $this->notify('success', 'Perfil actualizado correctamente ✅');
     }
 }
