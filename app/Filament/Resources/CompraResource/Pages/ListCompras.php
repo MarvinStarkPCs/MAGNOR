@@ -13,7 +13,11 @@ class ListCompras extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\Action::make('nueva_compra')
+                ->label('Nueva Compra')
+                ->icon('heroicon-o-plus-circle')
+                ->color('success')
+                ->url(fn (): string => CompraResource::getUrl('index')),
         ];
     }
 }

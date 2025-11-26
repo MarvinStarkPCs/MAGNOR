@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -17,7 +18,17 @@ class VentaResource extends Resource
 {
     protected static ?string $model = Venta::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+
+    protected static ?string $navigationLabel = 'Ventas';
+
+    protected static ?string $modelLabel = 'Venta';
+
+    protected static ?string $pluralModelLabel = 'Ventas';
+
+    protected static ?string $navigationGroup = 'Operaciones';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
@@ -62,6 +73,16 @@ class VentaResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('imprimir_factura')
+                    ->label('Factura')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->modalHeading('Opciones de Factura')
+                    ->modalDescription('Selecciona cómo deseas obtener la factura')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalContent(fn ($record) => view('filament.modals.factura-options', ['venta' => $record]))
+                    ->modalWidth('md'),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

@@ -31,9 +31,16 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('MAGNOR')
+            ->favicon(asset('favicon.ico'))
+            ->brandLogo(asset('images/logo_nav.png'))
+            ->brandLogoHeight('2.5rem')
             ->topNavigation()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#276691'),   // Azul
+                'success' => Color::hex('#146e39'),   // Verde
+                'danger' => Color::hex('#cc2128'),    // Rojo
+                'warning' => Color::hex('#f78921'),   // Naranja
             ])
             ->userMenuItems([
             'profile' => MenuItem::make()

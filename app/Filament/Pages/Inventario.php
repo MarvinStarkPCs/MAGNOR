@@ -11,7 +11,7 @@ class Inventario extends Page
     protected static ?string $title = 'Inventario';
     protected static ?string $navigationLabel = 'Inventario';
     protected static ?string $navigationGroup = 'Operaciones';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     protected function getHeaderWidgets(): array
     {

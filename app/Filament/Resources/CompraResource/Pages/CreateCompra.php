@@ -12,6 +12,17 @@ class CreateCompra extends CreateRecord
 {
     protected static string $resource = CompraResource::class;
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\Action::make('ver_compras')
+                ->label('Ver Compras')
+                ->icon('heroicon-o-list-bullet')
+                ->color('info')
+                ->url(fn (): string => CompraResource::getUrl('list')),
+        ];
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // Set automatic date

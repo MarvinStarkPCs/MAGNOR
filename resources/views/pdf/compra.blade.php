@@ -13,32 +13,50 @@
 
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 11px;
+            line-height: 1.3;
             color: #333;
-            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 30px 40px;
+        }
+
+        .page-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #146e39;
             padding-bottom: 15px;
         }
 
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-            color: #d97706;
+        .header .logo {
+            max-width: 220px;
+            height: auto;
+            margin: 0 auto 10px;
+            display: block;
         }
 
         .header p {
-            font-size: 14px;
+            font-size: 10px;
             color: #666;
+            margin-bottom: 12px;
+        }
+
+        .header h2 {
+            font-size: 18px;
+            color: #146e39;
+            font-weight: bold;
+            margin-top: 8px;
         }
 
         .invoice-info {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             overflow: hidden;
         }
 
@@ -55,49 +73,52 @@
 
         .info-box {
             background-color: #f5f5f5;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 3px;
+            margin-bottom: 6px;
         }
 
         .info-box h3 {
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: #d97706;
+            font-size: 11px;
+            margin-bottom: 5px;
+            color: #146e39;
             border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
+            padding-bottom: 3px;
         }
 
         .info-box p {
-            margin: 4px 0;
+            margin: 2px 0;
+            font-size: 10px;
         }
 
         .label {
             font-weight: bold;
             display: inline-block;
-            width: 120px;
+            width: 100px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         table thead {
-            background-color: #d97706;
+            background-color: #146e39;
             color: white;
         }
 
         table th {
-            padding: 10px;
+            padding: 7px 8px;
             text-align: left;
             font-weight: bold;
+            font-size: 10px;
         }
 
         table td {
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-bottom: 1px solid #ddd;
+            font-size: 10px;
         }
 
         table tbody tr:nth-child(even) {
@@ -114,8 +135,8 @@
 
         .totals {
             float: right;
-            width: 300px;
-            margin-top: 10px;
+            width: 250px;
+            margin-top: 8px;
         }
 
         .totals table {
@@ -123,36 +144,41 @@
         }
 
         .totals td {
-            padding: 8px;
+            padding: 6px;
+            font-size: 10px;
         }
 
         .totals .grand-total {
-            background-color: #d97706;
+            background-color: #146e39;
             color: white;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .observations {
             clear: both;
-            margin-top: 40px;
-            padding: 15px;
+            margin-top: 15px;
+            padding: 10px;
             background-color: #f5f5f5;
-            border-radius: 5px;
+            border-radius: 3px;
         }
 
         .observations h3 {
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: #d97706;
+            font-size: 11px;
+            margin-bottom: 5px;
+            color: #146e39;
+        }
+
+        .observations p {
+            font-size: 10px;
         }
 
         .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
+            margin-top: 25px;
+            padding-top: 12px;
+            border-top: 1px solid #146e39;
             text-align: center;
-            font-size: 10px;
+            font-size: 9px;
             color: #999;
         }
 
@@ -168,9 +194,11 @@
     </style>
 </head>
 <body>
+    <div class="page-wrapper">
     <div class="header">
-        <h1>MAGNOR</h1>
-        <p>Sistema de Gestión de Chatarrería</p>
+        <img src="{{ public_path('images/logo_factura.png') }}" alt="MAGNOR" class="logo">
+        <p>Sistema de Gestión de Chatarrería | Soluciones en Reciclaje y Materiales</p>
+        <h2>FACTURA DE COMPRA</h2>
     </div>
 
     <div class="invoice-info">
@@ -214,7 +242,7 @@
 
     <div style="clear: both;"></div>
 
-    <h3 style="margin-bottom: 10px; color: #d97706;">Detalle de Materiales</h3>
+    <h3 style="margin-bottom: 8px; margin-top: 12px; color: #146e39; font-size: 12px; border-bottom: 1px solid #146e39; padding-bottom: 3px;">Detalle de Materiales</h3>
 
     <table>
         <thead>
@@ -274,6 +302,7 @@
     <div class="footer">
         <p>Documento generado el {{ now()->format('d/m/Y H:i:s') }}</p>
         <p>MAGNOR - Sistema de Gestión de Chatarrería</p>
+    </div>
     </div>
 </body>
 </html>

@@ -230,20 +230,16 @@ class CompraResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\Action::make('print')
-                    ->label('Imprimir')
+                Tables\Actions\Action::make('imprimir_factura')
+                    ->label('Factura')
                     ->icon('heroicon-o-printer')
                     ->color('success')
-                    ->action(function (Compra $record) {
-                        $compra = $record->load(['proveedor', 'detalles.material']);
-
-                        $pdf = Pdf::loadView('pdf.compra', ['compra' => $compra]);
-
-                        return response()->streamDownload(
-                            fn () => print($pdf->output()),
-                            'factura-compra-' . $record->id . '.pdf'
-                        );
-                    }),
+                    ->modalHeading('Opciones de Factura')
+                    ->modalDescription('Selecciona cómo deseas obtener la factura')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalContent(fn ($record) => view('filament.modals.compra-factura-options', ['compra' => $record]))
+                    ->modalWidth('md'),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -358,8 +354,8 @@ class CompraResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCompras::route('/'),
-            'create' => Pages\CreateCompra::route('/create'),
+            'index' => Pages\CreateCompra::route('/'),
+            'list' => Pages\ListCompras::route('/listado'),
             'view' => Pages\ViewCompra::route('/{record}'),
             'edit' => Pages\EditCompra::route('/{record}/edit'),
         ];
