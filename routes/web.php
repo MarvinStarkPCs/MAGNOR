@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FacturaController;
+use Illuminate\Support\Facades\Log;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,3 +16,8 @@ Route::get('/venta/{id}/factura/download', [FacturaController::class, 'download'
 // Factura Compras routes
 Route::get('/compra/{id}/factura/print', [FacturaController::class, 'printCompra'])->name('compra.factura.print');
 Route::get('/compra/{id}/factura/download', [FacturaController::class, 'downloadCompra'])->name('compra.factura.download');
+
+Route::get('/log-test', function() {
+    Log::info('Prueba de logging funcionando en cPanel');
+    return 'Log generado';
+});
