@@ -37,21 +37,20 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('2.5rem')
             ->topNavigation()
             ->colors([
-                'primary' => Color::hex('#276691'),   // Azul
-                'success' => Color::hex('#146e39'),   // Verde
-                'danger' => Color::hex('#cc2128'),    // Rojo
-                'warning' => Color::hex('#f78921'),   // Naranja
+                'primary' => Color::hex('#276691'),
+                'success' => Color::hex('#146e39'),
+                'danger' => Color::hex('#cc2128'),
+                'warning' => Color::hex('#f78921'),
             ])
             ->userMenuItems([
-            'profile' => MenuItem::make()
-                ->label('Mi Perfil')
-                ->url(fn (): string => UserProfile::getUrl()) // 👉 tu página de perfil
-                ->icon('heroicon-o-user'),
-        ])
+                'profile' => MenuItem::make()
+                    ->label('Mi Perfil')
+                    ->url(fn (): string => UserProfile::getUrl())
+                    ->icon('heroicon-o-user'),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
@@ -65,6 +64,10 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Administración')
                     ->collapsed(),
             ])
+
+            // 🔥 ESTA ES LA LÍNEA CLAVE PARA EVITAR EL 403
+            ->authorize(fn () => auth()->check())
+
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -79,6 +82,5 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
-
     }
 }
