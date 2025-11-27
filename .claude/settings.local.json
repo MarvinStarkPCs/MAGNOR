@@ -14,7 +14,9 @@
       "Bash(composer remove:*)",
       "Bash(composer update:*)",
       "Bash(del \"C:\\laragon\\www\\MAGNOR\\app\\Filament\\Pages\\Inventario.php\")",
-      "Bash(del \"C:\\laragon\\www\\MAGNOR\\resources\\views\\filament\\pages\\inventario.blade.php\")"
+      "Bash(del \"C:\\laragon\\www\\MAGNOR\\resources\\views\\filament\\pages\\inventario.blade.php\")",
+      "Bash(dir \"C:\\laragon\\www\\MAGNOR\\resources\\views\\filament\\pages\" /b)",
+      "Bash(if exist \"C:\\laragon\\www\\MAGNOR\\resources\\css\\filament.css\" del \"C:\\laragon\\www\\MAGNOR\\resources\\css\\filament.css\")"
     ],
     "deny": [],
     "ask": []

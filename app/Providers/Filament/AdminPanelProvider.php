@@ -65,7 +65,6 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Administración')
                     ->collapsed(),
             ])
-            ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
