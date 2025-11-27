@@ -39,7 +39,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#276691'),
                 'success' => Color::hex('#146e39'),
-                'danger' => Color::hex('#cc2128'),
+                'danger'  => Color::hex('#cc2128'),
                 'warning' => Color::hex('#f78921'),
             ])
             ->userMenuItems([
@@ -61,13 +61,9 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make('Operaciones'),
                 NavigationGroup::make('Catálogos'),
-                NavigationGroup::make('Administración')
-                    ->collapsed(),
+                NavigationGroup::make('Administración')->collapsed(),
             ])
-
-            // 🔥 ESTA ES LA LÍNEA CLAVE PARA EVITAR EL 403
-            ->authorize(fn () => auth()->check())
-
+            // ❗ AQUÍ YA NO VA authorize()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
