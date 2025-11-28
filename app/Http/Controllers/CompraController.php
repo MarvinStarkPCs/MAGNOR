@@ -108,8 +108,9 @@ class CompraController extends Controller
 
             DB::commit();
 
-            return redirect()->route('compras.index')
-                ->with('success', 'Compra registrada exitosamente.');
+            return redirect()->route('compras.show', $compra->id)
+                ->with('success', 'Compra registrada exitosamente.')
+                ->with('mostrarModalFactura', true);
         } catch (\Exception $e) {
             DB::rollBack();
 

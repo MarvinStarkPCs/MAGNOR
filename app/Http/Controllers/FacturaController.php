@@ -56,4 +56,20 @@ class FacturaController extends Controller
 
         return $pdf->download('factura-compra-' . str_pad($compra->id, 6, '0', STR_PAD_LEFT) . '.pdf');
     }
+
+    /**
+     * Generar factura de venta (alias para print)
+     */
+    public function generarFactura($id)
+    {
+        return $this->print($id);
+    }
+
+    /**
+     * Generar factura de compra (alias para printCompra)
+     */
+    public function generarFacturaCompra($id)
+    {
+        return $this->printCompra($id);
+    }
 }

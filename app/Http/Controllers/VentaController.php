@@ -118,8 +118,9 @@ class VentaController extends Controller
 
             DB::commit();
 
-            return redirect()->route('ventas.index')
-                ->with('success', 'Venta registrada exitosamente.');
+            return redirect()->route('ventas.show', $venta->id)
+                ->with('success', 'Venta registrada exitosamente.')
+                ->with('mostrarModalFactura', true);
         } catch (\Exception $e) {
             DB::rollBack();
 

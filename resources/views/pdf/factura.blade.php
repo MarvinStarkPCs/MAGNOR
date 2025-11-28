@@ -5,271 +5,305 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Factura #{{ $venta->id }}</title>
     <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: 'Arial', sans-serif;
-            font-size: 11px;
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            line-height: 1.2;
             color: #333;
-            line-height: 1.4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 30px 0;
+            padding: 0;
+            margin: 0;
         }
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 30px 40px;
+
+        .page-wrapper {
+            width: 100%;
+            height: 14.85cm;
+            max-height: 14.85cm;
+            padding: 8mm 10mm;
+            margin: 0;
+            overflow: hidden;
         }
+
         .header {
             text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #146e39;
-            padding-bottom: 15px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #15803d;
+            padding-bottom: 12px;
         }
-        .logo {
-            max-width: 220px;
+
+        .header .logo {
+            max-width: 120px;
             height: auto;
-            margin: 0 auto 10px;
+            margin: 0 auto 8px;
             display: block;
         }
-        .company-info {
-            font-size: 10px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        .invoice-header-row {
-            display: table;
-            width: 100%;
-            margin-top: 12px;
-        }
-        .invoice-header-left {
-            display: table-cell;
-            width: 50%;
-            text-align: left;
-            vertical-align: middle;
-        }
-        .invoice-header-right {
-            display: table-cell;
-            width: 50%;
-            text-align: right;
-            vertical-align: middle;
-        }
-        .invoice-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #146e39;
-            margin-bottom: 5px;
-        }
-        .invoice-details {
-            font-size: 10px;
-            line-height: 1.5;
-        }
-        .invoice-details strong {
-            color: #146e39;
-        }
-        .section-title {
+
+        .header p {
             font-size: 12px;
+            color: #4b5563;
+            margin-bottom: 8px;
+        }
+
+        .header h2 {
+            font-size: 18px;
+            color: #15803d;
             font-weight: bold;
-            color: #146e39;
-            margin: 12px 0 6px 0;
-            padding-bottom: 3px;
-            border-bottom: 1px solid #146e39;
+            margin-top: 8px;
         }
-        .info-block {
-            margin-bottom: 12px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-left: 3px solid #146e39;
+
+        .invoice-info {
+            margin-bottom: 6px;
+            overflow: hidden;
         }
-        .info-block p {
-            margin: 3px 0;
+
+        .invoice-info .left {
+            float: left;
+            width: 50%;
         }
-        .info-block strong {
-            color: #146e39;
-            min-width: 100px;
-            display: inline-block;
+
+        .invoice-info .right {
+            float: right;
+            width: 45%;
+        }
+
+        .info-box {
+            background-color: #f9fafb;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .info-box h3 {
+            font-size: 9px;
+            margin-bottom: 4px;
+            color: #15803d;
+            border-bottom: 1px solid #d1d5db;
+            padding-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .info-box p {
+            margin: 2px 0;
+            font-size: 7px;
+        }
+
+        .info-box strong {
+            font-weight: bold;
+            font-size: 7px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0;
+            margin-bottom: 4px;
         }
+
         table thead {
-            background-color: #146e39;
+            background-color: #15803d;
             color: white;
         }
+
         table th {
-            padding: 8px 6px;
+            padding: 8px;
             text-align: left;
-            font-size: 10px;
             font-weight: bold;
-            text-transform: uppercase;
+            font-size: 7px;
         }
-        table tbody tr {
-            border-bottom: 1px solid #ddd;
-        }
-        table tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+
         table td {
-            padding: 7px 6px;
-            font-size: 10px;
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 7px;
         }
+
+        table tbody tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        table td strong {
+            font-weight: bold;
+        }
+
         .text-right {
             text-align: right;
         }
+
         .text-center {
             text-align: center;
         }
+
         .totals {
-            margin-top: 15px;
             float: right;
-            width: 250px;
+            width: 180px;
+            margin-top: 4px;
         }
+
         .totals table {
-            margin: 0;
+            margin-bottom: 0;
         }
-        .totals table td {
-            padding: 6px;
-            border: none;
-            font-size: 10px;
+
+        .totals td {
+            padding: 3px 4px;
+            font-size: 7px;
         }
-        .totals table tr.total-row {
-            background-color: #146e39;
+
+        .totals .grand-total {
+            background-color: #15803d;
             color: white;
-            font-size: 12px;
             font-weight: bold;
+            font-size: 18px;
         }
-        .totals table tr.subtotal-row {
-            background-color: #f0f0f0;
-            font-weight: bold;
+
+        .observations {
+            clear: both;
+            margin-top: 12px;
+            padding: 8px;
+            background-color: #f9fafb;
+            border-radius: 4px;
         }
-        .footer {
-            margin-top: 30px;
-            padding-top: 12px;
-            border-top: 1px solid #146e39;
-            text-align: center;
+
+        .observations h3 {
             font-size: 9px;
-            color: #666;
-            clear: both;
+            margin-bottom: 4px;
+            color: #15803d;
+            font-weight: bold;
         }
-        .notes {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-left: 3px solid #f78921;
-            clear: both;
+
+        .observations p {
+            font-size: 12px;
         }
-        .notes p {
-            margin: 3px 0;
-            font-size: 10px;
-            color: #666;
-        }
-        .notes strong {
-            color: #f78921;
+
+        .footer {
+            margin-top: 16px;
+            padding-top: 8px;
+            border-top: 1px solid #15803d;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
+    <div class="page-wrapper">
+    <div class="header">
+        @if(file_exists(public_path('images/logo_factura.png')))
             <img src="{{ public_path('images/logo_factura.png') }}" alt="MAGNOR" class="logo">
-            <div class="company-info">
-                Sistema de Gestión de Chatarrería | Soluciones en Reciclaje y Materiales
-            </div>
-            <div class="invoice-header-row">
-                <div class="invoice-header-left">
-                    <div class="invoice-title">FACTURA DE VENTA</div>
-                </div>
-                <div class="invoice-header-right">
-                    <div class="invoice-details">
-                        <strong>No. Factura:</strong> #{{ str_pad($venta->id, 6, '0', STR_PAD_LEFT) }}<br>
-                        <strong>Fecha:</strong> {{ \Carbon\Carbon::parse($venta->fecha)->format('d/m/Y') }}<br>
-                        <strong>Emisión:</strong> {{ now()->format('d/m/Y H:i') }}
-                    </div>
-                </div>
+        @else
+            <h1 style="font-size: 24px; color: #146e39; margin: 10px 0;">MAGNOR</h1>
+        @endif
+        <p>Sistema de Gestión de Chatarrería | Soluciones en Reciclaje y Materiales</p>
+        <h2>FACTURA DE VENTA</h2>
+    </div>
+
+    <div class="invoice-info">
+        <div class="left">
+            <div class="info-box">
+                <h3>Información de la Venta</h3>
+                <p><span class="label">No. Factura:</span> #{{ str_pad($venta->id, 6, '0', STR_PAD_LEFT) }}</p>
+                <p><span class="label">Fecha:</span> {{ \Carbon\Carbon::parse($venta->fecha)->format('d/m/Y') }}</p>
+                <p><span class="label">Emisión:</span> {{ now()->format('d/m/Y H:i') }}</p>
             </div>
         </div>
 
-        <!-- Client Information -->
-        <div class="section-title">Información del Cliente</div>
-        <div class="info-block">
+        <div class="right">
             @if($venta->cliente)
-                <p><strong>Cliente:</strong> {{ $venta->cliente->nombre ?? 'N/A' }}</p>
-                <p><strong>ID Cliente:</strong> #{{ $venta->cliente->id }}</p>
+            <div class="info-box">
+                <h3>Cliente</h3>
+                <p><span class="label">Nombre:</span> {{ $venta->cliente->nombre }}</p>
+                @if($venta->cliente->documento)
+                <p><span class="label">Documento:</span> {{ $venta->cliente->documento }}</p>
+                @endif
+                @if($venta->cliente->telefono)
+                <p><span class="label">Teléfono:</span> {{ $venta->cliente->telefono }}</p>
+                @endif
+                @if($venta->cliente->direccion)
+                <p><span class="label">Dirección:</span> {{ $venta->cliente->direccion }}</p>
+                @endif
+            </div>
             @else
-                <p><strong>Cliente:</strong> Cliente General</p>
+            <div class="info-box">
+                <h3>Cliente</h3>
+                <p style="color: #999; font-style: italic;">Cliente General</p>
+            </div>
             @endif
         </div>
+    </div>
 
-        <!-- Items Table -->
-        <div class="section-title">Detalle de la Venta</div>
+    <div style="clear: both;"></div>
+
+    <h3 style="margin-bottom: 8px; margin-top: 12px; color: #146e39; font-size: 12px; border-bottom: 1px solid #146e39; padding-bottom: 3px;">Detalle de Materiales</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 5%;">#</th>
+                <th style="width: 35%;">Material</th>
+                <th style="width: 15%;" class="text-center">Cantidad</th>
+                <th style="width: 20%;" class="text-right">Precio Unitario</th>
+                <th style="width: 25%;" class="text-right">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($venta->detalles as $index => $detalle)
+            <tr>
+                <td class="text-center">{{ $index + 1 }}</td>
+                <td>
+                    <strong>{{ $detalle->material->nombre }}</strong>
+                </td>
+                <td class="text-center">
+                    {{ number_format($detalle->cantidad, 2) }}
+                    {{ match($detalle->material->unidad_medida) {
+                        'kg' => 'kg',
+                        'unidad' => 'unid.',
+                        'tonelada' => 'ton.',
+                        'metro' => 'm',
+                        'litro' => 'L',
+                        default => $detalle->material->unidad_medida,
+                    } }}
+                </td>
+                <td class="text-right">${{ number_format($detalle->precio_unitario, 2) }}</td>
+                <td class="text-right"><strong>${{ number_format($detalle->subtotal, 2) }}</strong></td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <div class="totals">
         <table>
-            <thead>
-                <tr>
-                    <th style="width: 5%">#</th>
-                    <th style="width: 40%">Material</th>
-                    <th style="width: 15%" class="text-right">Cantidad</th>
-                    <th style="width: 15%" class="text-right">Precio Unit.</th>
-                    <th style="width: 15%" class="text-right">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($venta->detalles ?? [] as $index => $detalle)
-                <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td>{{ $detalle->material->nombre ?? 'Material' }}</td>
-                    <td class="text-right">{{ number_format($detalle->cantidad, 2) }} kg</td>
-                    <td class="text-right">${{ number_format($detalle->precio_unitario, 2) }}</td>
-                    <td class="text-right">${{ number_format($detalle->subtotal, 2) }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="text-center">No hay detalles disponibles</td>
-                </tr>
-                @endforelse
-            </tbody>
+            <tr>
+                <td><strong>Subtotal:</strong></td>
+                <td class="text-right">${{ number_format($venta->total * 0.85, 2) }}</td>
+            </tr>
+            <tr>
+                <td><strong>IVA (15%):</strong></td>
+                <td class="text-right">${{ number_format($venta->total * 0.15, 2) }}</td>
+            </tr>
+            <tr class="grand-total">
+                <td><strong>TOTAL:</strong></td>
+                <td class="text-right"><strong>${{ number_format($venta->total, 2) }} COP</strong></td>
+            </tr>
         </table>
+    </div>
 
-        <!-- Totals -->
-        <div class="totals">
-            <table>
-                <tr class="subtotal-row">
-                    <td>Subtotal:</td>
-                    <td class="text-right">${{ number_format($venta->total * 0.85, 2) }}</td>
-                </tr>
-                <tr class="subtotal-row">
-                    <td>IVA (15%):</td>
-                    <td class="text-right">${{ number_format($venta->total * 0.15, 2) }}</td>
-                </tr>
-                <tr class="total-row">
-                    <td>TOTAL:</td>
-                    <td class="text-right">${{ number_format($venta->total, 2) }}</td>
-                </tr>
-            </table>
-        </div>
+    @if($venta->observaciones)
+    <div class="observations">
+        <h3>Observaciones</h3>
+        <p>{{ $venta->observaciones }}</p>
+    </div>
+    @endif
 
-        <!-- Observaciones -->
-        @if($venta->observaciones)
-        <div class="notes">
-            <p><strong>Observaciones:</strong></p>
-            <p>{{ $venta->observaciones }}</p>
-        </div>
-        @endif
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>Gracias por su preferencia</p>
-            <p>MAGNOR - Sistema de Gestión de Chatarrería</p>
-            <p>Este documento es una representación impresa de una factura electrónica</p>
-        </div>
+    <div class="footer">
+        <p>Documento generado el {{ now()->format('d/m/Y H:i:s') }}</p>
+        <p>MAGNOR - Sistema de Gestión de Chatarrería</p>
+    </div>
     </div>
 </body>
 </html>

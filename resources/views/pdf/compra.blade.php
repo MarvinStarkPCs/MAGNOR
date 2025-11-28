@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Factura de Compra #{{ $compra->id }}</title>
     <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -13,50 +17,51 @@
 
         body {
             font-family: Arial, sans-serif;
-            font-size: 11px;
-            line-height: 1.3;
+            font-size: 9px;
+            line-height: 1.2;
             color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 30px 40px;
+            padding: 0;
+            margin: 0;
         }
 
         .page-wrapper {
-            max-width: 700px;
-            margin: 0 auto;
+            width: 100%;
+            height: 14.85cm;
+            max-height: 14.85cm;
+            padding: 8mm 10mm;
+            margin: 0;
+            overflow: hidden;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #146e39;
-            padding-bottom: 15px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #15803d;
+            padding-bottom: 12px;
         }
 
         .header .logo {
-            max-width: 220px;
+            max-width: 120px;
             height: auto;
-            margin: 0 auto 10px;
+            margin: 0 auto 8px;
             display: block;
         }
 
         .header p {
-            font-size: 10px;
-            color: #666;
-            margin-bottom: 12px;
+            font-size: 12px;
+            color: #4b5563;
+            margin-bottom: 8px;
         }
 
         .header h2 {
             font-size: 18px;
-            color: #146e39;
+            color: #15803d;
             font-weight: bold;
             margin-top: 8px;
         }
 
         .invoice-info {
-            margin-bottom: 15px;
+            margin-bottom: 6px;
             overflow: hidden;
         }
 
@@ -72,57 +77,61 @@
         }
 
         .info-box {
-            background-color: #f5f5f5;
+            background-color: #f9fafb;
             padding: 8px;
-            border-radius: 3px;
-            margin-bottom: 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
         }
 
         .info-box h3 {
-            font-size: 11px;
-            margin-bottom: 5px;
-            color: #146e39;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 3px;
+            font-size: 9px;
+            margin-bottom: 4px;
+            color: #15803d;
+            border-bottom: 1px solid #d1d5db;
+            padding-bottom: 4px;
+            font-weight: bold;
         }
 
         .info-box p {
             margin: 2px 0;
-            font-size: 10px;
+            font-size: 7px;
         }
 
-        .label {
+        .info-box strong {
             font-weight: bold;
-            display: inline-block;
-            width: 100px;
+            font-size: 7px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
         }
 
         table thead {
-            background-color: #146e39;
+            background-color: #15803d;
             color: white;
         }
 
         table th {
-            padding: 7px 8px;
+            padding: 8px;
             text-align: left;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 7px;
         }
 
         table td {
-            padding: 6px 8px;
-            border-bottom: 1px solid #ddd;
-            font-size: 10px;
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 7px;
         }
 
         table tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #f9fafb;
+        }
+
+        table td strong {
+            font-weight: bold;
         }
 
         .text-right {
@@ -135,8 +144,8 @@
 
         .totals {
             float: right;
-            width: 250px;
-            margin-top: 8px;
+            width: 180px;
+            margin-top: 4px;
         }
 
         .totals table {
@@ -144,51 +153,52 @@
         }
 
         .totals td {
-            padding: 6px;
-            font-size: 10px;
+            padding: 3px 4px;
+            font-size: 7px;
         }
 
         .totals .grand-total {
-            background-color: #146e39;
+            background-color: #15803d;
             color: white;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 18px;
         }
 
         .observations {
             clear: both;
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-radius: 3px;
+            margin-top: 12px;
+            padding: 8px;
+            background-color: #f9fafb;
+            border-radius: 4px;
         }
 
         .observations h3 {
-            font-size: 11px;
-            margin-bottom: 5px;
-            color: #146e39;
+            font-size: 9px;
+            margin-bottom: 4px;
+            color: #15803d;
+            font-weight: bold;
         }
 
         .observations p {
-            font-size: 10px;
+            font-size: 12px;
         }
 
         .footer {
-            margin-top: 25px;
-            padding-top: 12px;
-            border-top: 1px solid #146e39;
+            margin-top: 16px;
+            padding-top: 8px;
+            border-top: 1px solid #15803d;
             text-align: center;
-            font-size: 9px;
-            color: #999;
+            font-size: 12px;
+            color: #6b7280;
         }
 
         .badge {
             display: inline-block;
-            padding: 3px 8px;
+            padding: 2px 4px;
             background-color: #10b981;
             color: white;
-            border-radius: 3px;
-            font-size: 10px;
+            border-radius: 2px;
+            font-size: 6px;
             font-weight: bold;
         }
     </style>
@@ -196,7 +206,11 @@
 <body>
     <div class="page-wrapper">
     <div class="header">
-        <img src="{{ public_path('images/logo_factura.png') }}" alt="MAGNOR" class="logo">
+        @if(file_exists(public_path('images/logo_factura.png')))
+            <img src="{{ public_path('images/logo_factura.png') }}" alt="MAGNOR" class="logo">
+        @else
+            <h1 style="font-size: 24px; color: #146e39; margin: 10px 0;">MAGNOR</h1>
+        @endif
         <p>Sistema de Gestión de Chatarrería | Soluciones en Reciclaje y Materiales</p>
         <h2>FACTURA DE COMPRA</h2>
     </div>
