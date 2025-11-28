@@ -27,7 +27,8 @@
       "Bash(dir \"C:\\laragon\\www\\MAGNOR\\public\\images\" /b)",
       "Bash(cat:*)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(taskkill /F /IM node.exe)"
     ],
     "deny": [],
     "ask": []
