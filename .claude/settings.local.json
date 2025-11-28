@@ -16,7 +16,18 @@
       "Bash(del \"C:\\laragon\\www\\MAGNOR\\app\\Filament\\Pages\\Inventario.php\")",
       "Bash(del \"C:\\laragon\\www\\MAGNOR\\resources\\views\\filament\\pages\\inventario.blade.php\")",
       "Bash(dir \"C:\\laragon\\www\\MAGNOR\\resources\\views\\filament\\pages\" /b)",
-      "Bash(if exist \"C:\\laragon\\www\\MAGNOR\\resources\\css\\filament.css\" del \"C:\\laragon\\www\\MAGNOR\\resources\\css\\filament.css\")"
+      "Bash(if exist \"C:\\laragon\\www\\MAGNOR\\resources\\css\\filament.css\" del \"C:\\laragon\\www\\MAGNOR\\resources\\css\\filament.css\")",
+      "Bash(if exist \"C:\\laragon\\www\\MAGNOR\\app\\Filament\" rmdir /S /Q \"C:\\laragon\\www\\MAGNOR\\app\\Filament\")",
+      "Bash(if exist \"C:\\laragon\\www\\MAGNOR\\app\\Providers\\Filament\" rmdir /S /Q \"C:\\laragon\\www\\MAGNOR\\app\\Providers\\Filament\")",
+      "Bash(if exist \"C:\\laragon\\www\\MAGNOR\\resources\\views\\filament\" rmdir /S /Q \"C:\\laragon\\www\\MAGNOR\\resources\\views\\filament\")",
+      "Bash(git rm:*)",
+      "Bash(composer run:*)",
+      "Bash(timeout /t 3)",
+      "Bash(ping:*)",
+      "Bash(dir \"C:\\laragon\\www\\MAGNOR\\public\\images\" /b)",
+      "Bash(cat:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

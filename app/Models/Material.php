@@ -35,15 +35,15 @@ class Material extends Model
         'fecha_actualizacion_precio' => 'date',
     ];
 
-    // Relación con compras (si existiera tabla purchases)
-    public function purchases()
+    // Relación con detalles de compras
+    public function detallesCompras()
     {
-        return $this->hasMany(Purchase::class);
+        return $this->hasMany(DetalleCompra::class);
     }
 
-    // Relación con ventas (si existiera tabla sales)
-    public function sales()
+    // Relación con detalles de ventas
+    public function detallesVentas()
     {
-        return $this->hasMany(Sale::class);
+        return $this->hasMany(DetalleVenta::class);
     }
 }

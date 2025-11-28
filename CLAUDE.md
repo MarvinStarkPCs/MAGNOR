@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MAGNOR is a scrapyard management system (sistema de chatarrería) built with Laravel 12 and Filament 3.3 admin panel. It manages scrap materials inventory, suppliers (proveedores), clients, purchases, sales, and inventory movements. The system uses Spatie roles and permissions for user authorization.
+MAGNOR is a scrapyard management system (sistema de chatarrería) built with Laravel 12 and React (using Inertia.js). It manages scrap materials inventory, suppliers (proveedores), clients, purchases, sales, and inventory movements. The system uses Laravel Breeze for authentication scaffolding.
 
 ## Development Commands
 
@@ -86,22 +86,13 @@ php artisan migrate:fresh --seed
 php artisan make:migration create_table_name
 ```
 
-### Filament Commands
+### Inertia.js Commands
 ```bash
-# Create a new Filament resource
-php artisan make:filament-resource ModelName --generate
+# Generate Ziggy route helpers (for use in React components)
+php artisan ziggy:generate
 
-# Create a custom Filament page
-php artisan make:filament-page PageName
-
-# Create a Filament widget
-php artisan make:filament-widget WidgetName
-
-# Upgrade Filament (runs automatically after composer update)
-php artisan filament:upgrade
-
-# Create a Filament user
-php artisan make:filament-user
+# Clear Inertia cache
+php artisan cache:clear
 ```
 
 ### Build for Production
@@ -118,33 +109,36 @@ php artisan view:cache
 
 ## Architecture
 
-### Filament Admin Panel
+### React + Inertia.js Frontend
 
-The application is built around Filament admin panel at `/admin` path:
+The application uses React with Inertia.js as the frontend framework:
 
-- **Panel Provider**: `app/Providers/Filament/AdminPanelProvider.php` configures the admin panel, including:
-  - Authentication
-  - Navigation customization
-  - User menu items (profile link)
-  - Spatie roles/permissions plugin
-  - Color scheme (Amber primary color)
+- **Inertia Pages**: Located in `resources/js/Pages/`
+  - React components that serve as pages
+  - Automatically mapped to Laravel routes
+  - Receive data as props from Laravel controllers
+  - Examples: `Dashboard.jsx`, `Profile/Edit.jsx`, etc.
 
-- **Resources**: Located in `app/Filament/Resources/`
-  - `MaterialResource` - Material/inventory management
-  - `ProveedoresResource` - Supplier management
-  - `UserResource` - User management with roles/permissions
-  - Each resource has associated Pages for List/Create/Edit operations
+- **Shared Components**: Located in `resources/js/Components/`
+  - Reusable React components
+  - Layout components (`AuthenticatedLayout.jsx`, `GuestLayout.jsx`)
+  - Form elements (`TextInput.jsx`, `PrimaryButton.jsx`, etc.)
 
-- **Custom Pages**: Located in `app/Filament/Pages/`
-  - `Dashboard.php` - Custom dashboard replacing default
-  - `UserProfile.php` - User profile management
-  - `GestionExtras.php` - Additional management page
-  - Pages use custom Blade views in `resources/views/filament/pages/`
+- **Authentication**: Laravel Breeze provides:
+  - Login, registration, password reset flows
+  - Email verification
+  - Profile management
+  - Built with React + Inertia.js
+
+- **Routing**:
+  - Laravel routes defined in `routes/web.php`
+  - Ziggy package provides Laravel routes to React components
+  - Use `route()` helper in React for type-safe routing
 
 ### Database Schema
 
 Core entities for scrapyard operations (migrations in `database/migrations/`):
-- `users` - Application users with Spatie roles/permissions
+- `users` - Application users
 - `materiales` - Scrap materials/metals with stock tracking (copper, aluminum, steel, etc.)
 - `proveedores` - Suppliers who sell scrap materials to the business
 - `clientes` - Clients/customers who purchase scrap materials
@@ -153,7 +147,6 @@ Core entities for scrapyard operations (migrations in `database/migrations/`):
 - `ventas` - Sales orders for selling scrap materials
 - `detalle_ventas` - Sales order line items (individual materials per sale)
 - `movimientos_inventario` - Inventory movements/adjustments for material tracking
-- `permission_tables` - Spatie roles and permissions tables
 
 ### Models
 
@@ -164,10 +157,17 @@ Core entities for scrapyard operations (migrations in `database/migrations/`):
 
 ### Frontend Stack
 
-- **Vite** for asset bundling (`vite.config.js`)
-- **Tailwind CSS 4.0** for styling
-- **Axios** for HTTP requests
-- Assets compiled from `resources/css/app.css` and `resources/js/app.js`
+- **React** - JavaScript library for building user interfaces
+- **Inertia.js** - Modern monolith framework connecting Laravel and React
+  - No need for separate API endpoints
+  - Server-side routing with client-side rendering
+  - Shared data between backend and frontend via props
+- **Vite** - Fast build tool for asset bundling (`vite.config.js`)
+- **Tailwind CSS** - Utility-first CSS framework
+- **Ziggy** - Laravel route helper for JavaScript
+- **Axios** - HTTP client (used internally by Inertia)
+- Entry point: `resources/js/app.jsx`
+- Styles: `resources/css/app.css`
 
 ### Configuration Notes
 
@@ -179,25 +179,56 @@ Core entities for scrapyard operations (migrations in `database/migrations/`):
 
 ## Common Patterns
 
-### Creating a New Filament Resource
+### Creating a New Inertia Page
 
-1. Create model: `php artisan make:model ModelName -m`
-2. Define migration schema and run `php artisan migrate`
-3. Generate Filament resource: `php artisan make:filament-resource ModelName --generate`
-4. Customize form/table in resource class
-5. Add any custom pages or widgets as needed
+1. Create a controller: `php artisan make:controller PageNameController`
+2. Create a React component in `resources/js/Pages/PageName.jsx`
+3. Define route in `routes/web.php`:
+   ```php
+   Route::get('/page-name', [PageNameController::class, 'index'])->name('page.name');
+   ```
+4. Return Inertia response from controller:
+   ```php
+   return Inertia::render('PageName', [
+       'data' => $data,
+   ]);
+   ```
 
-### Adding Custom Filament Pages
+### Creating Reusable Components
 
-1. Create page class: `php artisan make:filament-page PageName`
-2. Create corresponding Blade view in `resources/views/filament/pages/`
-3. Set `protected static string $view` in page class
-4. Configure navigation icon, title, and visibility with static properties
-5. Page will auto-register if in `app/Filament/Pages/` (due to `discoverPages()`)
+1. Create component in `resources/js/Components/ComponentName.jsx`
+2. Export component:
+   ```jsx
+   export default function ComponentName({ prop1, prop2 }) {
+       return <div>...</div>;
+   }
+   ```
+3. Import and use in pages:
+   ```jsx
+   import ComponentName from '@/Components/ComponentName';
+   ```
 
-### Working with Roles & Permissions
+### Working with Forms
 
-- Uses `althinect/filament-spatie-roles-permissions` package
-- Permission tables created via migration `2025_09_26_164818_create_permission_tables.php`
-- Configure via Filament plugin in `AdminPanelProvider`
-- Apply permissions to resources/pages using Filament's authorization methods
+1. Use Inertia's form helper for form state and submission:
+   ```jsx
+   import { useForm } from '@inertiajs/react';
+
+   const { data, setData, post, processing, errors } = useForm({
+       field: '',
+   });
+
+   const submit = (e) => {
+       e.preventDefault();
+       post(route('route.name'));
+   };
+   ```
+
+### Navigation with Inertia
+
+- Use Inertia's `Link` component for navigation:
+  ```jsx
+  import { Link } from '@inertiajs/react';
+  <Link href={route('route.name')}>Navigate</Link>
+  ```
+- Use Ziggy's `route()` helper to generate URLs from route names
