@@ -11,10 +11,11 @@ export default function Welcome({ canLogin, canRegister }) {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                                    <span className="text-white font-bold text-xl">M</span>
-                                </div>
-                                <span className="text-white font-bold text-xl">MAGNOR</span>
+                                <img
+                                    src="/images/logo_nav.png"
+                                    alt="MAGNOR"
+                                    className="h-12 w-auto"
+                                />
                             </div>
 
                             {canLogin && (
@@ -117,6 +118,36 @@ export default function Welcome({ canLogin, canRegister }) {
                                 <h3 className="text-white font-bold text-lg mb-2">Precios</h3>
                                 <p className="text-green-100 text-sm">
                                     Actualización diaria de precios de materiales
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* MAGNOR POS Section */}
+                        <div className="mt-20 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                            <div className="text-center">
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500 rounded-xl mb-4">
+                                    <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-3xl font-bold text-white mb-4">
+                                    MAGNOR POS
+                                </h2>
+                                <p className="text-xl text-blue-100 mb-6 max-w-2xl mx-auto">
+                                    Sistema de Punto de Venta para Windows - Gestiona tu chatarrería de forma rápida y eficiente
+                                </p>
+                                <a
+                                    href="/installer/MAGNOR_POS_Setup.exe"
+                                    download
+                                    className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                                >
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Descargar MAGNOR POS
+                                </a>
+                                <p className="text-blue-200 text-sm mt-4">
+                                    Compatible con Windows 10 y superior
                                 </p>
                             </div>
                         </div>
