@@ -48,10 +48,36 @@ class InventarioController extends Controller
         // Calcular valor total del inventario
         $valorTotalInventario = Material::selectRaw('SUM(stock * precio_compra) as total')->first()->total ?? 0;
 
+        // Obtener fechas del filtro
+        $fechaInicio = $request->input('fecha_inicio');
+        $fechaFin = $request->input('fecha_fin');
+
+        // Calcular total de compras (filtrado por fecha si aplica)
+        $queryCompras = DB::table('compras');
+        if ($fechaInicio) {
+            $queryCompras->where('fecha_compra', '>=', $fechaInicio);
+        }
+        if ($fechaFin) {
+            $queryCompras->where('fecha_compra', '<=', $fechaFin);
+        }
+        $totalComprasRealizadas = $queryCompras->sum('total');
+
+        // Calcular total de ventas (filtrado por fecha si aplica)
+        $queryVentas = DB::table('ventas');
+        if ($fechaInicio) {
+            $queryVentas->where('fecha', '>=', $fechaInicio);
+        }
+        if ($fechaFin) {
+            $queryVentas->where('fecha', '<=', $fechaFin);
+        }
+        $totalVentasRealizadas = $queryVentas->sum('total');
+
         return Inertia::render('Inventario/Index', [
             'materiales' => $materiales,
-            'filters' => $request->only(['search', 'stock_bajo', 'sort_by', 'sort_order']),
+            'filters' => $request->only(['search', 'stock_bajo', 'sort_by', 'sort_order', 'fecha_inicio', 'fecha_fin']),
             'valorTotalInventario' => $valorTotalInventario,
+            'totalComprasRealizadas' => $totalComprasRealizadas,
+            'totalVentasRealizadas' => $totalVentasRealizadas,
         ]);
     }
 

@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { formatDate, formatCurrency } from '@/Utils/dateFormatter';
 
 export default function Index({ compras, filters }) {
     const [search, setSearch] = useState(filters.search || '');
@@ -18,22 +19,6 @@ export default function Index({ compras, filters }) {
         if (confirm('¿Estás seguro de eliminar esta compra?')) {
             router.delete(route('compras.destroy', id));
         }
-    };
-
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0,
-        }).format(value);
-    };
-
-    const formatDate = (date) => {
-        return new Date(date).toLocaleDateString('es-CO', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
     };
 
     return (

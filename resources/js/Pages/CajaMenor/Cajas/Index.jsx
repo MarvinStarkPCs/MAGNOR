@@ -1,25 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import { formatDate, formatDateTime, formatCurrency } from '@/Utils/dateFormatter';
 
 export default function Index({ cajas, cajaAbierta, filters }) {
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0,
-        }).format(value || 0);
-    };
-
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('es-CO');
-    };
-
-    const formatDateTime = (dateString) => {
-        return new Date(dateString).toLocaleString('es-CO', {
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
 
     return (
         <AuthenticatedLayout

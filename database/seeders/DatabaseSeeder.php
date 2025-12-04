@@ -15,10 +15,26 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        // Crear usuario administrador
         User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@magnor.com',
             'password' => bcrypt('password'),
+        ]);
+
+        // Seeders de catálogos base
+        $this->call([
+            MaterialesSeeder::class,
+            ProveedoresSeeder::class,
+            ClientesSeeder::class,
+            CategoriasCajaSeeder::class,
+        ]);
+
+        // Seeders de transacciones (dependen de catálogos)
+        $this->call([
+            ComprasSeeder::class,
+            VentasSeeder::class,
+            CajasSeeder::class,
         ]);
     }
 }

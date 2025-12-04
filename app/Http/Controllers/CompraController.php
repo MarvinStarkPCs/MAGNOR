@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Caja;
 use App\Models\Compra;
 use App\Models\DetalleCompra;
 use App\Models\Material;
+use App\Models\MovimientoCaja;
 use App\Models\Proveedor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +74,14 @@ class CompraController extends Controller
             'detalles.*.precio_unitario' => 'required|numeric|min:0',
         ]);
 
+        // Verificar que existe una caja abierta
+        $cajaAbierta = Caja::where('estado', 'abierta')->first();
+
+        if (!$cajaAbierta) {
+            return back()->withInput()
+                ->with('error', 'No hay una caja abierta. Debe abrir una caja antes de registrar compras.');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -106,10 +116,23 @@ class CompraController extends Controller
                 $material->increment('stock', $detalle['cantidad']);
             }
 
+            // Registrar movimiento de caja (egreso por compra)
+            $proveedor = Proveedor::find($validated['proveedor_id']);
+            MovimientoCaja::create([
+                'caja_id' => $cajaAbierta->id,
+                'categoria_id' => 5, // Categoría "Compra de Material"
+                'tipo' => 'egreso',
+                'monto' => $total,
+                'concepto' => 'Compra #' . $compra->id . ' - ' . $proveedor->nombre,
+                'observaciones' => $validated['observaciones'],
+                'responsable_id' => auth()->id(),
+                'fecha_hora' => now(),
+            ]);
+
             DB::commit();
 
             return redirect()->route('compras.show', $compra->id)
-                ->with('success', 'Compra registrada exitosamente.')
+                ->with('success', 'Compra registrada exitosamente y descontada de la caja.')
                 ->with('mostrarModalFactura', true);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -205,6 +228,18 @@ class CompraController extends Controller
                 $material->increment('stock', $detalle['cantidad']);
             }
 
+            // Actualizar el movimiento de caja asociado
+            $movimiento = MovimientoCaja::where('concepto', 'like', 'Compra #' . $compra->id . ' -%')->first();
+            if ($movimiento) {
+                $proveedor = Proveedor::find($validated['proveedor_id']);
+                $movimiento->update([
+                    'monto' => $total,
+                    'concepto' => 'Compra #' . $compra->id . ' - ' . $proveedor->nombre,
+                    'observaciones' => $validated['observaciones'],
+                    'fecha_hora' => now(),
+                ]);
+            }
+
             DB::commit();
 
             return redirect()->route('compras.index')
@@ -238,6 +273,12 @@ class CompraController extends Controller
                 $material->decrement('stock', $detalle->cantidad);
             }
 
+            // Buscar y eliminar el movimiento de caja asociado a esta compra
+            $movimiento = MovimientoCaja::where('concepto', 'like', 'Compra #' . $compra->id . ' -%')->first();
+            if ($movimiento) {
+                $movimiento->delete();
+            }
+
             // Eliminar detalles y compra
             $compra->detalles()->delete();
             $compra->delete();
@@ -245,7 +286,7 @@ class CompraController extends Controller
             DB::commit();
 
             return redirect()->route('compras.index')
-                ->with('success', 'Compra eliminada exitosamente.');
+                ->with('success', 'Compra eliminada exitosamente y revertida de la caja.');
         } catch (\Exception $e) {
             DB::rollBack();
 

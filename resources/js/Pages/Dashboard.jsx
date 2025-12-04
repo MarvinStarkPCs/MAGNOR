@@ -1,19 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import { formatDate, formatCurrency } from '@/Utils/dateFormatter';
 
 export default function Dashboard({ stats, materialesBajoStock, ultimasVentas, ultimasCompras, ventasPorMes, comprasPorMes, materialesMasVendidos }) {
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(value || 0);
-    };
-
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('es-CO');
-    };
 
     return (
         <AuthenticatedLayout
