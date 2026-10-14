@@ -2,89 +2,98 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Compra;
-use App\Models\Venta;
-use App\Models\Material;
-use App\Models\Cliente;
-use App\Models\Proveedor;
+use App\Models\DetalleRecibo;
+use App\Models\Inventario;
+use App\Models\Recibo;
+use App\Models\Reciclador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request): Response
     {
-        // Estadísticas generales
-        $totalMateriales = Material::count();
-        $totalClientes = Cliente::count();
-        $totalProveedores = Proveedor::count();
+        $mes  = $request->integer('mes', now()->month);
+        $anio = $request->integer('anio', now()->year);
 
-        // Ventas y compras del mes actual
-        $mesActual = now()->format('Y-m');
-        $ventasMesActual = Venta::whereRaw('DATE_FORMAT(fecha, "%Y-%m") = ?', [$mesActual])->sum('total');
-        $comprasMesActual = Compra::whereRaw('DATE_FORMAT(fecha_compra, "%Y-%m") = ?', [$mesActual])->sum('total');
+        $resumen = Recibo::query()
+            ->whereMonth('fecha', $mes)
+            ->whereYear('fecha', $anio)
+            ->where('anulado', false)
+            ->selectRaw('COUNT(*) as total_recibos, COUNT(DISTINCT reciclador_id) as total_recicladores')
+            ->first();
 
-        // Materiales con bajo stock (menos del 20% del promedio)
-        $promedioStock = Material::avg('stock');
-        $materialesBajoStock = Material::where('stock', '<', $promedioStock * 0.2)
-            ->orderBy('stock', 'asc')
-            ->limit(5)
+        $totalesKg = DetalleRecibo::query()
+            ->join('recibos', 'recibos.id', '=', 'detalle_recibo.recibo_id')
+            ->whereMonth('recibos.fecha', $mes)
+            ->whereYear('recibos.fecha', $anio)
+            ->where('recibos.anulado', false)
+            ->selectRaw('
+                COALESCE(SUM(kg_bruto), 0) as total_kg_bruto,
+                COALESCE(SUM(kg_neto), 0) as total_kg_neto,
+                COALESCE(SUM(ROUND(kg_bruto * detalle_recibo.precio_kg, 2)), 0) as total_pagado
+            ')
+            ->first();
+
+        $topRecicladores = Reciclador::query()
+            ->join('recibos', 'recibos.reciclador_id', '=', 'recicladores.id')
+            ->join('detalle_recibo', 'detalle_recibo.recibo_id', '=', 'recibos.id')
+            ->whereMonth('recibos.fecha', $mes)
+            ->whereYear('recibos.fecha', $anio)
+            ->where('recibos.anulado', false)
+            ->groupBy('recicladores.id', 'recicladores.nombre')
+            ->selectRaw('recicladores.nombre, SUM(kg_neto) as total_kg, SUM(ROUND(kg_bruto * detalle_recibo.precio_kg,2)) as total_pagado')
+            ->orderByDesc('total_pagado')
+            ->limit(10)
             ->get();
 
-        // Últimas 5 ventas
-        $ultimasVentas = Venta::with('cliente')
-            ->orderBy('fecha', 'desc')
-            ->limit(5)
+        $topMateriales = DB::table('detalle_recibo')
+            ->join('recibos', 'recibos.id', '=', 'detalle_recibo.recibo_id')
+            ->join('materiales', 'materiales.id', '=', 'detalle_recibo.material_id')
+            ->whereMonth('recibos.fecha', $mes)
+            ->whereYear('recibos.fecha', $anio)
+            ->where('recibos.anulado', false)
+            ->groupBy('materiales.id', 'materiales.nombre')
+            ->selectRaw('materiales.nombre, SUM(detalle_recibo.kg_neto) as total_kg')
+            ->orderByDesc('total_kg')
+            ->limit(10)
             ->get();
 
-        // Últimas 5 compras
-        $ultimasCompras = Compra::with('proveedor')
-            ->orderBy('fecha_compra', 'desc')
-            ->limit(5)
+        $actividadSemanal = Recibo::query()
+            ->whereYear('fecha', $anio)
+            ->whereMonth('fecha', $mes)
+            ->where('anulado', false)
+            ->join('detalle_recibo', 'detalle_recibo.recibo_id', '=', 'recibos.id')
+            ->groupBy('semana')
+            ->selectRaw('semana, SUM(kg_neto) as total_kg, SUM(ROUND(kg_bruto * detalle_recibo.precio_kg,2)) as total_pagado')
+            ->orderBy('semana')
             ->get();
 
-        // Datos para gráficos - Ventas vs Compras últimos 6 meses
-        $ventasPorMes = Venta::select(
-            DB::raw('DATE_FORMAT(fecha, "%Y-%m") as mes'),
-            DB::raw('SUM(total) as total')
-        )
-        ->where('fecha', '>=', now()->subMonths(6))
-        ->groupBy('mes')
-        ->orderBy('mes')
-        ->get();
-
-        $comprasPorMes = Compra::select(
-            DB::raw('DATE_FORMAT(fecha_compra, "%Y-%m") as mes'),
-            DB::raw('SUM(total) as total')
-        )
-        ->where('fecha_compra', '>=', now()->subMonths(6))
-        ->groupBy('mes')
-        ->orderBy('mes')
-        ->get();
-
-        // Top 5 materiales más vendidos (por cantidad)
-        $materialesMasVendidos = Material::select('materiales.*', DB::raw('SUM(detalle_ventas.cantidad) as total_vendido'))
-            ->join('detalle_ventas', 'materiales.id', '=', 'detalle_ventas.material_id')
-            ->groupBy('materiales.id')
-            ->orderBy('total_vendido', 'desc')
+        $stockTotal = (float) Inventario::sum('cantidad_kg');
+        $stockMateriales = Inventario::with('material')
+            ->where('cantidad_kg', '>', 0)
+            ->orderByDesc('cantidad_kg')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(fn($s) => ['nombre' => $s->material->nombre, 'kg' => (float) $s->cantidad_kg]);
 
-        return Inertia::render('Dashboard', [
-            'stats' => [
-                'totalMateriales' => $totalMateriales,
-                'totalClientes' => $totalClientes,
-                'totalProveedores' => $totalProveedores,
-                'ventasMesActual' => $ventasMesActual,
-                'comprasMesActual' => $comprasMesActual,
+        return Inertia::render('dashboard', [
+            'resumen'          => [
+                'total_recibos'      => $resumen->total_recibos,
+                'total_recicladores' => $resumen->total_recicladores,
+                'total_kg_bruto'     => $totalesKg->total_kg_bruto,
+                'total_kg_neto'      => $totalesKg->total_kg_neto,
+                'total_pagado'       => $totalesKg->total_pagado,
             ],
-            'materialesBajoStock' => $materialesBajoStock,
-            'ultimasVentas' => $ultimasVentas,
-            'ultimasCompras' => $ultimasCompras,
-            'ventasPorMes' => $ventasPorMes,
-            'comprasPorMes' => $comprasPorMes,
-            'materialesMasVendidos' => $materialesMasVendidos,
+            'topRecicladores'  => $topRecicladores,
+            'topMateriales'    => $topMateriales,
+            'actividadSemanal' => $actividadSemanal,
+            'stockTotal'       => $stockTotal,
+            'stockMateriales'  => $stockMateriales,
+            'mes'              => $mes,
+            'anio'             => $anio,
         ]);
     }
 }

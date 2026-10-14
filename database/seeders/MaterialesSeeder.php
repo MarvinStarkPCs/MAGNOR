@@ -2,141 +2,83 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\FamiliaMaterial;
+use App\Models\Material;
 use Illuminate\Database\Seeder;
 
 class MaterialesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $materiales = [
-            [
-                'nombre' => 'Cobre Brillante',
-                'descripcion' => 'Cobre limpio de primera calidad, sin impurezas',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 85.50,
-                'precio_venta' => 110.00,
-                'stock' => 250.00,
-            ],
-            [
-                'nombre' => 'Cobre Quemado',
-                'descripcion' => 'Cobre recuperado de cables quemados',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 65.00,
-                'precio_venta' => 85.00,
-                'stock' => 180.50,
-            ],
-            [
-                'nombre' => 'Aluminio Limpio',
-                'descripcion' => 'Aluminio puro sin anodizar',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 22.00,
-                'precio_venta' => 30.00,
-                'stock' => 450.00,
-            ],
-            [
-                'nombre' => 'Aluminio de Perfil',
-                'descripcion' => 'Perfiles de aluminio de ventanas y puertas',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 18.00,
-                'precio_venta' => 25.00,
-                'stock' => 320.75,
-            ],
-            [
-                'nombre' => 'Fierro de Primera',
-                'descripcion' => 'Acero estructural de primera calidad',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 3.50,
-                'precio_venta' => 5.50,
-                'stock' => 1250.00,
-            ],
-            [
-                'nombre' => 'Fierro de Segunda',
-                'descripcion' => 'Chatarra de fierro mezclada',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 2.50,
-                'precio_venta' => 4.00,
-                'stock' => 980.00,
-            ],
-            [
-                'nombre' => 'Acero Inoxidable',
-                'descripcion' => 'Acero inoxidable limpio (304/316)',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 25.00,
-                'precio_venta' => 35.00,
-                'stock' => 150.00,
-            ],
-            [
-                'nombre' => 'Bronce',
-                'descripcion' => 'Aleación de cobre y estaño',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 45.00,
-                'precio_venta' => 60.00,
-                'stock' => 85.50,
-            ],
-            [
-                'nombre' => 'Latón',
-                'descripcion' => 'Aleación de cobre y zinc',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 40.00,
-                'precio_venta' => 55.00,
-                'stock' => 120.25,
-            ],
-            [
-                'nombre' => 'Batería Usada',
-                'descripcion' => 'Baterías de plomo-ácido usadas',
-                'unidad_medida' => 'pza',
-                'precio_compra' => 15.00,
-                'precio_venta' => 25.00,
-                'stock' => 45.00,
-            ],
-            [
-                'nombre' => 'Cable de Cobre',
-                'descripcion' => 'Cable eléctrico con aislamiento',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 35.00,
-                'precio_venta' => 50.00,
-                'stock' => 200.00,
-            ],
-            [
-                'nombre' => 'Radiador de Aluminio',
-                'descripcion' => 'Radiadores automotrices de aluminio',
-                'unidad_medida' => 'pza',
-                'precio_compra' => 80.00,
-                'precio_venta' => 120.00,
-                'stock' => 25.00,
-            ],
-            [
-                'nombre' => 'Lata de Aluminio',
-                'descripcion' => 'Latas de refresco y cerveza',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 12.00,
-                'precio_venta' => 18.00,
-                'stock' => 150.00,
-            ],
-            [
-                'nombre' => 'Cartón',
-                'descripcion' => 'Cartón limpio y seco',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 1.50,
-                'precio_venta' => 2.50,
-                'stock' => 500.00,
-            ],
-            [
-                'nombre' => 'Plástico PET',
-                'descripcion' => 'Botellas de plástico PET',
-                'unidad_medida' => 'kg',
-                'precio_compra' => 3.00,
-                'precio_venta' => 5.00,
-                'stock' => 380.00,
-            ],
+        $familias = [
+            ['nombre' => 'METALES',        'codigo_sui' => 100],
+            ['nombre' => 'PAPEL Y CARTÓN', 'codigo_sui' => 200],
+            ['nombre' => 'PLÁSTICOS',      'codigo_sui' => 300],
+            ['nombre' => 'VIDRIO',         'codigo_sui' => 400],
+            ['nombre' => 'RECHAZO',        'codigo_sui' => 700],
         ];
 
-        foreach ($materiales as $material) {
-            \App\Models\Material::create($material);
+        foreach ($familias as $f) {
+            FamiliaMaterial::firstOrCreate(['nombre' => $f['nombre']], $f);
+        }
+
+        $materiales = [
+            // METALES
+            ['familia' => 'METALES', 'codigo_sui' => 101, 'nombre' => 'ALUMINIO LATA',    'precio_actual' => 7000],
+            ['familia' => 'METALES', 'codigo_sui' => 101, 'nombre' => 'ALUMINIO GRUESO',  'precio_actual' => 5500],
+            ['familia' => 'METALES', 'codigo_sui' => 101, 'nombre' => 'ALUMINIO BLANDO',  'precio_actual' => 5500],
+            ['familia' => 'METALES', 'codigo_sui' => 101, 'nombre' => 'ALUMINIO PERFIL',  'precio_actual' => 7000],
+            ['familia' => 'METALES', 'codigo_sui' => 101, 'nombre' => 'ALUMINIO BANDA',   'precio_actual' => 4000],
+            ['familia' => 'METALES', 'codigo_sui' => 101, 'nombre' => 'ALUMINIO GUAYA',   'precio_actual' => 8000],
+            ['familia' => 'METALES', 'codigo_sui' => 101, 'nombre' => 'ALUMINIO RINES',   'precio_actual' => 6500],
+            ['familia' => 'METALES', 'codigo_sui' => 102, 'nombre' => 'CHATARRA GRIS',    'precio_actual' => 1200],
+            ['familia' => 'METALES', 'codigo_sui' => 102, 'nombre' => 'CHATARRA',         'precio_actual' => 700],
+            ['familia' => 'METALES', 'codigo_sui' => 103, 'nombre' => 'COBRE #1',         'precio_actual' => 34000],
+            ['familia' => 'METALES', 'codigo_sui' => 103, 'nombre' => 'COBRE #2',         'precio_actual' => 33000],
+            ['familia' => 'METALES', 'codigo_sui' => 104, 'nombre' => 'BRONCE',           'precio_actual' => 18000],
+            ['familia' => 'METALES', 'codigo_sui' => 105, 'nombre' => 'ANTIMONIO',        'precio_actual' => 5500],
+            ['familia' => 'METALES', 'codigo_sui' => 106, 'nombre' => 'ACERO',            'precio_actual' => 2800],
+            ['familia' => 'METALES', 'codigo_sui' => 199, 'nombre' => 'OTROS METALES',    'precio_actual' => 5500],
+            // PAPEL Y CARTÓN
+            ['familia' => 'PAPEL Y CARTÓN', 'codigo_sui' => 201, 'nombre' => 'ARCHIVO',               'precio_actual' => 700],
+            ['familia' => 'PAPEL Y CARTÓN', 'codigo_sui' => 202, 'nombre' => 'CARTÓN',                'precio_actual' => 350],
+            ['familia' => 'PAPEL Y CARTÓN', 'codigo_sui' => 203, 'nombre' => 'CUBETAS O PANELES',     'precio_actual' => 50],
+            ['familia' => 'PAPEL Y CARTÓN', 'codigo_sui' => 204, 'nombre' => 'PERIÓDICO',             'precio_actual' => 200],
+            ['familia' => 'PAPEL Y CARTÓN', 'codigo_sui' => 205, 'nombre' => 'PLEGADIZA',             'precio_actual' => 150],
+            ['familia' => 'PAPEL Y CARTÓN', 'codigo_sui' => 206, 'nombre' => 'TETRA PACK',            'precio_actual' => 150],
+            ['familia' => 'PAPEL Y CARTÓN', 'codigo_sui' => 207, 'nombre' => 'PLASTIFICADO',          'precio_actual' => 0],
+            ['familia' => 'PAPEL Y CARTÓN', 'codigo_sui' => 208, 'nombre' => 'KRAF',                  'precio_actual' => 0],
+            ['familia' => 'PAPEL Y CARTÓN', 'codigo_sui' => 299, 'nombre' => 'OTROS PAPEL Y CARTÓN',  'precio_actual' => 350],
+            // PLÁSTICOS
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 301, 'nombre' => 'ACRÍLICO',          'precio_actual' => 0],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 302, 'nombre' => 'PASTA',             'precio_actual' => 800],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 302, 'nombre' => 'PASTA NEGRA',       'precio_actual' => 700],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 302, 'nombre' => 'PASTA SILLA',       'precio_actual' => 1500],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 302, 'nombre' => 'PASTA LAVADORA',    'precio_actual' => 1400],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 303, 'nombre' => 'PET TRANSPARENTE',  'precio_actual' => 1000],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 303, 'nombre' => 'PET AMBAR',         'precio_actual' => 300],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 303, 'nombre' => 'PET VERDE',         'precio_actual' => 300],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 303, 'nombre' => 'PET ACEITE',        'precio_actual' => 150],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 303, 'nombre' => 'PET REVUELTO',      'precio_actual' => 500],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 304, 'nombre' => 'PVC TUBO',          'precio_actual' => 300],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 304, 'nombre' => 'PVC LAMINA',        'precio_actual' => 200],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 305, 'nombre' => 'BOLSA',             'precio_actual' => 600],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 306, 'nombre' => 'MANGUERA',          'precio_actual' => 800],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 307, 'nombre' => 'SOPLADO',           'precio_actual' => 700],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 308, 'nombre' => 'POLIPROPILENO',     'precio_actual' => 0],
+            ['familia' => 'PLÁSTICOS', 'codigo_sui' => 399, 'nombre' => 'OTROS PLÁSTICOS',   'precio_actual' => 0],
+            // VIDRIO
+            ['familia' => 'VIDRIO',  'codigo_sui' => 499, 'nombre' => 'OTROS VIDRIOS', 'precio_actual' => 50],
+            // RECHAZO
+            ['familia' => 'RECHAZO', 'codigo_sui' => 799, 'nombre' => 'RECHAZO',       'precio_actual' => 0],
+        ];
+
+        foreach ($materiales as $m) {
+            $familia = FamiliaMaterial::where('nombre', $m['familia'])->first();
+            Material::firstOrCreate(
+                ['nombre' => $m['nombre']],
+                ['familia_id' => $familia->id, 'codigo_sui' => $m['codigo_sui'], 'precio_actual' => $m['precio_actual']]
+            );
         }
     }
 }

@@ -2,105 +2,127 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bodega;
+use App\Models\Inventario;
 use App\Models\Material;
+use App\Models\MovimientoInventario;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class InventarioController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
-        $query = Material::query();
+        $stocks = Inventario::with(['material.familia', 'bodega'])
+            ->when($request->bodega_id, fn($q, $b) => $q->where('bodega_id', $b))
+            ->when($request->familia_id, fn($q, $f) =>
+                $q->whereHas('material', fn($m) => $m->where('familia_id', $f))
+            )
+            ->when($request->search, fn($q, $s) =>
+                $q->whereHas('material', fn($m) => $m->where('nombre', 'like', "%$s%"))
+            )
+            ->orderByDesc('cantidad_kg')
+            ->get()
+            ->map(fn($s) => [
+                'id'                   => $s->id,
+                'material_id'          => $s->material_id,
+                'bodega_id'            => $s->bodega_id,
+                'material_nombre'      => $s->material->nombre,
+                'familia_nombre'       => $s->material->familia->nombre,
+                'bodega_nombre'        => $s->bodega?->nombre ?? '—',
+                'cantidad_kg'          => (float) $s->cantidad_kg,
+                'ultima_actualizacion' => $s->ultima_actualizacion?->toDateTimeString(),
+            ]);
 
-        // Búsqueda
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('descripcion', 'like', "%{$search}%");
-            });
-        }
-
-        // Filtrar por stock bajo
-        if ($request->has('stock_bajo') && $request->input('stock_bajo')) {
-            $promedioStock = Material::avg('stock');
-            $query->where('stock', '<', $promedioStock * 0.2);
-        }
-
-        // Ordenamiento
-        $sortBy = $request->input('sort_by', 'nombre');
-        $sortOrder = $request->input('sort_order', 'asc');
-        $query->orderBy($sortBy, $sortOrder);
-
-        // Cargar movimientos recientes para cada material
-        $materiales = $query->with([
-            'detallesCompras' => function ($query) {
-                $query->latest()->limit(5);
-            },
-            'detallesCompras.compra',
-            'detallesVentas' => function ($query) {
-                $query->latest()->limit(5);
-            },
-            'detallesVentas.venta'
-        ])->paginate(10)->withQueryString();
-
-        // Calcular valor total del inventario
-        $valorTotalInventario = Material::selectRaw('SUM(stock * precio_compra) as total')->first()->total ?? 0;
-
-        // Obtener fechas del filtro
-        $fechaInicio = $request->input('fecha_inicio');
-        $fechaFin = $request->input('fecha_fin');
-
-        // Calcular total de compras (filtrado por fecha si aplica)
-        $queryCompras = DB::table('compras');
-        if ($fechaInicio) {
-            $queryCompras->where('fecha_compra', '>=', $fechaInicio);
-        }
-        if ($fechaFin) {
-            $queryCompras->where('fecha_compra', '<=', $fechaFin);
-        }
-        $totalComprasRealizadas = $queryCompras->sum('total');
-
-        // Calcular total de ventas (filtrado por fecha si aplica)
-        $queryVentas = DB::table('ventas');
-        if ($fechaInicio) {
-            $queryVentas->where('fecha', '>=', $fechaInicio);
-        }
-        if ($fechaFin) {
-            $queryVentas->where('fecha', '<=', $fechaFin);
-        }
-        $totalVentasRealizadas = $queryVentas->sum('total');
+        $familias = \App\Models\FamiliaMaterial::orderBy('nombre')->get(['id', 'nombre']);
+        $bodegas  = Bodega::where('activa', true)->orderBy('nombre')->get(['id', 'nombre']);
+        $totalKg  = $stocks->sum('cantidad_kg');
 
         return Inertia::render('Inventario/Index', [
-            'materiales' => $materiales,
-            'filters' => $request->only(['search', 'stock_bajo', 'sort_by', 'sort_order', 'fecha_inicio', 'fecha_fin']),
-            'valorTotalInventario' => $valorTotalInventario,
-            'totalComprasRealizadas' => $totalComprasRealizadas,
-            'totalVentasRealizadas' => $totalVentasRealizadas,
+            'stocks'   => $stocks,
+            'familias' => $familias,
+            'bodegas'  => $bodegas,
+            'totalKg'  => (float) $totalKg,
+            'filtros'  => $request->only('search', 'familia_id', 'bodega_id'),
         ]);
     }
 
-    public function show(Material $material)
+    public function movimientos(Request $request): Response
     {
-        // Cargar todos los movimientos del material
-        $material->load([
-            'detallesCompras.compra.proveedor',
-            'detallesVentas.venta.cliente'
+        $movimientos = MovimientoInventario::with(['material.familia', 'user'])
+            ->when($request->material_id, fn($q, $m) => $q->where('material_id', $m))
+            ->when($request->tipo, fn($q, $t) => $q->where('tipo', $t))
+            ->when($request->fecha_desde, fn($q, $d) => $q->whereDate('fecha', '>=', $d))
+            ->when($request->fecha_hasta, fn($q, $d) => $q->whereDate('fecha', '<=', $d))
+            ->orderByDesc('created_at')
+            ->paginate(30)->withQueryString();
+
+        $materiales = Material::activos()->orderBy('nombre')->get(['id', 'nombre']);
+
+        return Inertia::render('Inventario/Movimientos', [
+            'movimientos' => $movimientos,
+            'materiales'  => $materiales,
+            'filtros'     => $request->only('material_id', 'tipo', 'fecha_desde', 'fecha_hasta'),
+        ]);
+    }
+
+    public function ajustar(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'material_id'   => 'required|exists:materiales,id',
+            'bodega_id'     => 'required|exists:bodegas,id',
+            'kg'            => 'required|numeric|min:0.001',
+            'tipo'          => 'required|in:ajuste',
+            'direccion'     => 'required|in:sumar,restar',
+            'observaciones' => 'required|string|min:5',
         ]);
 
-        // Calcular estadísticas
-        $totalComprado = $material->detallesCompras->sum('cantidad');
-        $totalVendido = $material->detallesVentas->sum('cantidad');
-        $valorInventario = $material->stock * $material->precio_compra;
+        $material = Material::findOrFail($data['material_id']);
 
-        return Inertia::render('Inventario/Show', [
-            'material' => $material,
-            'stats' => [
-                'totalComprado' => $totalComprado,
-                'totalVendido' => $totalVendido,
-                'valorInventario' => $valorInventario,
-            ],
+        if ($data['direccion'] === 'sumar') {
+            Inventario::sumar(
+                materialId: $data['material_id'],
+                bodegaId:   $data['bodega_id'],
+                kg:         $data['kg'],
+                tipo:       'ajuste',
+                observaciones: $data['observaciones'],
+            );
+        } else {
+            Inventario::restar(
+                materialId: $data['material_id'],
+                bodegaId:   $data['bodega_id'],
+                kg:         $data['kg'],
+                observaciones: $data['observaciones'],
+            );
+        }
+
+        return redirect()->route('inventario.index')
+            ->with('success', "Ajuste de {$data['kg']} kg en {$material->nombre} registrado.");
+    }
+
+    public function transferir(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'material_id'       => 'required|exists:materiales,id',
+            'bodega_origen_id'  => 'required|exists:bodegas,id',
+            'bodega_destino_id' => 'required|exists:bodegas,id|different:bodega_origen_id',
+            'kg'                => 'required|numeric|min:0.001',
+            'observaciones'     => 'nullable|string',
         ]);
+
+        $material = Material::findOrFail($data['material_id']);
+
+        Inventario::transferir(
+            materialId:       $data['material_id'],
+            bodegaOrigenId:   $data['bodega_origen_id'],
+            bodegaDestinoId:  $data['bodega_destino_id'],
+            kg:               $data['kg'],
+            observaciones:    $data['observaciones'] ?? "Transferencia de {$material->nombre}",
+        );
+
+        return redirect()->route('inventario.index')
+            ->with('success', "Transferencia de {$data['kg']} kg de {$material->nombre} realizada.");
     }
 }

@@ -3,47 +3,37 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Material extends Model
 {
-    use HasFactory;
-
-    // Nombre real de la tabla
+    public $timestamps = false;
     protected $table = 'materiales';
+    protected $fillable = ['familia_id', 'codigo_sui', 'nombre', 'precio_actual', 'activo'];
 
-    // Campos que se pueden asignar masivamente
-    protected $fillable = [
-        'nombre',
-        'descripcion',
-        'unidad_medida',
-        'precio_compra',
-        'precio_venta',
-        'precio_dia_compra',
-        'precio_dia_venta',
-        'fecha_actualizacion_precio',
-        'stock',
-    ];
-
-    // Tipos de datos automáticos
     protected $casts = [
-        'precio_compra' => 'decimal:2',
-        'precio_venta' => 'decimal:2',
-        'precio_dia_compra' => 'decimal:2',
-        'precio_dia_venta' => 'decimal:2',
-        'stock' => 'decimal:2',
-        'fecha_actualizacion_precio' => 'date',
+        'precio_actual' => 'decimal:2',
+        'activo'        => 'boolean',
     ];
 
-    // Relación con detalles de compras
-    public function detallesCompras()
+    public function familia(): BelongsTo
     {
-        return $this->hasMany(DetalleCompra::class);
+        return $this->belongsTo(FamiliaMaterial::class, 'familia_id');
     }
 
-    // Relación con detalles de ventas
-    public function detallesVentas()
+    public function detalles(): HasMany
     {
-        return $this->hasMany(DetalleVenta::class);
+        return $this->hasMany(DetalleRecibo::class, 'material_id');
+    }
+
+    public function historialPrecios(): HasMany
+    {
+        return $this->hasMany(HistorialPrecio::class, 'material_id');
+    }
+
+    public function scopeActivos($query)
+    {
+        return $query->where('activo', true);
     }
 }

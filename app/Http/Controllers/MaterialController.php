@@ -2,128 +2,72 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FamiliaMaterial;
+use App\Models\HistorialPrecio;
 use App\Models\Material;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class MaterialController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
-        $query = Material::query();
-
-        // Búsqueda
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('descripcion', 'like', "%{$search}%");
-            });
-        }
-
-        // Ordenamiento
-        $sortBy = $request->input('sort_by', 'nombre');
-        $sortOrder = $request->input('sort_order', 'asc');
-        $query->orderBy($sortBy, $sortOrder);
-
-        $materiales = $query->paginate(10)->withQueryString();
+        $materiales = Material::with('familia')
+            ->when($request->search, fn($q, $s) =>
+                $q->where('nombre', 'like', "%$s%")
+            )
+            ->when($request->filled('familia_id'), fn($q) =>
+                $q->where('familia_id', $request->familia_id)
+            )
+            ->orderBy('familia_id')->orderBy('nombre')
+            ->paginate(30)->withQueryString();
 
         return Inertia::render('Materiales/Index', [
             'materiales' => $materiales,
-            'filters' => $request->only(['search', 'sort_by', 'sort_order']),
+            'familias'   => FamiliaMaterial::where('activo', true)->orderBy('nombre')->get(),
+            'filtros'    => $request->only('search', 'familia_id'),
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return Inertia::render('Materiales/Create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'unidad_medida' => 'required|string|max:50',
-            'precio_compra' => 'required|numeric|min:0',
-            'precio_venta' => 'required|numeric|min:0',
-            'precio_dia_compra' => 'nullable|numeric|min:0',
-            'precio_dia_venta' => 'nullable|numeric|min:0',
-            'stock' => 'required|numeric|min:0',
-        ]);
-
-        Material::create($validated);
-
-        return redirect()->route('materiales.index')
-            ->with('success', 'Material creado exitosamente.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Material $material)
-    {
-        $material->load(['detallesCompras.compra.proveedor', 'detallesVentas.venta.cliente']);
-
-        return Inertia::render('Materiales/Show', [
-            'material' => $material,
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Material $material)
+    public function edit(Material $material): Response
     {
         return Inertia::render('Materiales/Edit', [
-            'material' => $material,
+            'material'  => $material->load('familia', 'historialPrecios'),
+            'familias'  => FamiliaMaterial::where('activo', true)->orderBy('nombre')->get(),
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Material $material)
+    public function update(Request $request, Material $material): RedirectResponse
     {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'unidad_medida' => 'required|string|max:50',
-            'precio_compra' => 'required|numeric|min:0',
-            'precio_venta' => 'required|numeric|min:0',
-            'precio_dia_compra' => 'nullable|numeric|min:0',
-            'precio_dia_venta' => 'nullable|numeric|min:0',
-            'stock' => 'required|numeric|min:0',
+        $data = $request->validate([
+            'precio_actual' => 'required|numeric|min:0',
+            'activo'        => 'boolean',
         ]);
 
-        $material->update($validated);
+        if ($material->precio_actual != $data['precio_actual']) {
+            HistorialPrecio::where('material_id', $material->id)
+                ->whereNull('vigente_hasta')
+                ->update(['vigente_hasta' => now()->subDay()->toDateString()]);
 
-        return redirect()->route('materiales.index')
-            ->with('success', 'Material actualizado exitosamente.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Material $material)
-    {
-        // Verificar si tiene movimientos
-        if ($material->detallesCompras()->count() > 0 || $material->detallesVentas()->count() > 0) {
-            return back()->with('error', 'No se puede eliminar el material porque tiene movimientos asociados.');
+            HistorialPrecio::create([
+                'material_id'   => $material->id,
+                'precio'        => $data['precio_actual'],
+                'vigente_desde' => now()->toDateString(),
+            ]);
         }
 
-        $material->delete();
+        $material->update($data);
+        return redirect()->route('materiales.index')->with('success', 'Precio actualizado correctamente.');
+    }
 
-        return redirect()->route('materiales.index')
-            ->with('success', 'Material eliminado exitosamente.');
+    public function todos()
+    {
+        return Material::with('familia')
+            ->activos()
+            ->orderBy('familia_id')
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'precio_actual', 'familia_id', 'codigo_sui']);
     }
 }

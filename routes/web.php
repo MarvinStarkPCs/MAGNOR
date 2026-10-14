@@ -1,75 +1,57 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BodegaController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MaterialController;
-use App\Http\Controllers\ProveedorController;
-use App\Http\Controllers\ClienteController;
-use App\Http\Controllers\CompraController;
-use App\Http\Controllers\VentaController;
 use App\Http\Controllers\InventarioController;
-use App\Http\Controllers\PreciosController;
-use App\Http\Controllers\FacturaController;
-use App\Http\Controllers\CategoriasCajaController;
-use App\Http\Controllers\CajasController;
-use App\Http\Controllers\MovimientosCajaController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\PagoController;
+use App\Http\Controllers\ReciboController;
+use App\Http\Controllers\RecicladorController;
+use App\Http\Controllers\RegistroController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-});
+Route::redirect('/', '/dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Recicladores
+    Route::get('/recicladores/buscar', [RecicladorController::class, 'buscar'])->name('recicladores.buscar');
+    Route::resource('recicladores', RecicladorController::class)->except(['show', 'destroy']);
+    Route::delete('/recicladores/{reciclador}/desactivar', [RecicladorController::class, 'destroy'])->name('recicladores.destroy');
+
     // Materiales
-    Route::resource('materiales', MaterialController::class);
+    Route::get('/materiales/todos', [MaterialController::class, 'todos'])->name('materiales.todos');
+    Route::resource('materiales', MaterialController::class)->only(['index', 'edit', 'update']);
 
-    // Proveedores
-    Route::resource('proveedores', ProveedorController::class);
+    // Recibos
+    Route::resource('recibos', ReciboController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+    Route::patch('/recibos/{recibo}/anular', [ReciboController::class, 'anular'])->name('recibos.anular');
+    Route::get('/recibos/{recibo}/pdf', [ReciboController::class, 'pdf'])->name('recibos.pdf');
 
-    // Clientes
-    Route::resource('clientes', ClienteController::class);
+    // Pagos a recicladores
+    Route::resource('pagos', PagoController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::get('/pagos/recibos-por-reciclador', [PagoController::class, 'recibosPorReciclador'])->name('pagos.recibos-por-reciclador');
 
-    // Compras
-    Route::resource('compras', CompraController::class);
+    // Vehículos
+    Route::resource('vehiculos', VehiculoController::class)->only(['index', 'store', 'update', 'destroy']);
 
-    // Ventas
-    Route::resource('ventas', VentaController::class);
+    // Bodegas
+    Route::resource('bodegas', BodegaController::class)->only(['index', 'store', 'update', 'destroy']);
 
     // Inventario
     Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');
-    Route::get('/inventario/{material}', [InventarioController::class, 'show'])->name('inventario.show');
+    Route::get('/inventario/movimientos', [InventarioController::class, 'movimientos'])->name('inventario.movimientos');
+    Route::post('/inventario/ajustar', [InventarioController::class, 'ajustar'])->name('inventario.ajustar');
+    Route::post('/inventario/transferir', [InventarioController::class, 'transferir'])->name('inventario.transferir');
 
-    // Precios del Día
-    Route::get('/precios', [PreciosController::class, 'index'])->name('precios.index');
-    Route::post('/precios', [PreciosController::class, 'update'])->name('precios.update');
-    Route::post('/precios/aplicar', [PreciosController::class, 'aplicarPreciosDia'])->name('precios.aplicar');
-
-    // Facturas
-    Route::get('/ventas/{venta}/factura', [FacturaController::class, 'generarFactura'])->name('ventas.factura');
-    Route::get('/compras/{compra}/factura', [FacturaController::class, 'generarFacturaCompra'])->name('compras.factura');
-
-    // Caja Menor - Categorías
-    Route::resource('categorias-caja', CategoriasCajaController::class);
-
-    // Caja Menor - Cajas
-    Route::resource('cajas', CajasController::class)->except(['edit', 'update']);
-    Route::post('/cajas/{caja}/close', [CajasController::class, 'close'])->name('cajas.close');
-
-    // Caja Menor - Movimientos
-    Route::resource('movimientos-caja', MovimientosCajaController::class);
-
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Registro / Balance de Masa
+    Route::get('/registro', [RegistroController::class, 'index'])->name('registro.index');
+    Route::get('/registro/exportar-sui', [RegistroController::class, 'exportarSui'])->name('registro.exportar-sui');
+    Route::get('/registro/exportar-csv', [RegistroController::class, 'exportarCsv'])->name('registro.exportar-csv');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__.'/settings.php';
